@@ -24,5 +24,27 @@
 TEST_CASE("SmallSet", "[SmallSet]") {
     constexpr size_t maxElts = 128;
     SmallSet& s = *new(alloca(SmallSet::allocSize(maxElts))) SmallSet;
+    s.add(0);
+    s.add(1);
+    s.add(63);
     s.add(137);
+    s.add(3141);
+    s.add(4095);
+    SECTION("contains") {
+	CHECK(s.contains(0));
+	CHECK(s.contains(1));
+	CHECK(s.contains(63));
+	CHECK(s.contains(137));
+	CHECK(s.contains(3141));
+	CHECK(!s.contains(2));
+	CHECK(!s.contains(62));
+	CHECK(!s.contains(64));
+	CHECK(!s.contains(100));
+	CHECK(!s.contains(138));
+	CHECK(!s.contains(1000));
+	CHECK(!s.contains(2048));
+	CHECK(!s.contains(4094));
+	CHECK_THROWS_AS(s.contains(4096), std::out_of_range);
+	CHECK_THROWS_AS(s.contains(-1), std::out_of_range);
+    }
 }
