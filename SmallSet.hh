@@ -36,6 +36,16 @@ public:
 	}
     }
 
+    bool contains(unsigned x) const {
+	if (x > MAX_X)
+	    throw std::out_of_range("SmallSet::contains: " + std::to_string(x) + " > " + std::to_string(MAX_X));
+	size_t xSet = x / WORD_BITS;
+	if (!bitSet(mask_, xSet))
+	    return false;
+	else
+	    return bitSet(sets_[xSet], x % WORD_BITS);
+    }
+
 private:
     typedef std::uint64_t word;
     static constexpr size_t WORD_BITS = std::numeric_limits<word>::digits;
