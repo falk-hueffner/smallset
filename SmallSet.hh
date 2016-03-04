@@ -18,6 +18,8 @@
 #include <cstdint>
 #include <limits>
 
+#define ALLOCA_SMALLSET(maxElts) (new(alloca(SmallSet::allocSize(maxElts))) SmallSet)
+
 class SmallSet {
 public:
     static size_t allocSize(size_t n) { return sizeof (word) * (1 + n); }

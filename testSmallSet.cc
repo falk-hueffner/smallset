@@ -23,7 +23,7 @@
 
 TEST_CASE("SmallSet", "[SmallSet]") {
     constexpr size_t maxElts = 128;
-    SmallSet& s = *new(alloca(SmallSet::allocSize(maxElts))) SmallSet;
+    SmallSet& s = *ALLOCA_SMALLSET(maxElts);
     s.add(0);
     s.add(1);
     s.add(63);
