@@ -30,6 +30,7 @@ public:
 	if (!bitSet(mask_, xSet)) {
 	    memmove(sets_ + xSet + 1, sets_ + xSet, sizeof (word) * numBitsAbove(mask_, xSet));
 	    sets_[xSet] = word(1) << (x % WORD_BITS);
+	    mask_ |= word(1) << xSet;
 	} else {
 	    sets_[xSet] |= word(1) << (x % WORD_BITS);
 	}
