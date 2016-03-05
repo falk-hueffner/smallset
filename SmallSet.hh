@@ -21,7 +21,13 @@
 #define ALLOCA_SMALLSET(maxElts) (new(alloca(SmallSet::allocSize(maxElts))) SmallSet)
 
 class SmallSet {
+private:
+    typedef std::uint64_t word;
+    static constexpr size_t WORD_BITS = std::numeric_limits<word>::digits;
 public:
+    static constexpr size_t MAX_N = WORD_BITS * WORD_BITS;
+    static constexpr size_t MAX_X = MAX_N - 1;
+
     static size_t allocSize(size_t n) { return sizeof (word) * (1 + n); }
     SmallSet() : mask_(0) { }
 
@@ -49,9 +55,6 @@ public:
     }
 
 private:
-    typedef std::uint64_t word;
-    static constexpr size_t WORD_BITS = std::numeric_limits<word>::digits;
-    static constexpr size_t MAX_X = WORD_BITS * WORD_BITS - 1;
     static size_t popcount(word x) {
 	static_assert(sizeof (word) <= sizeof (int) ||
 		      sizeof (word) == sizeof (long) ||
