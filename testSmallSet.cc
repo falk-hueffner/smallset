@@ -22,15 +22,14 @@
 #include <alloca.h>
 
 TEST_CASE("SmallSet", "[SmallSet]") {
-    constexpr size_t maxElts = 128;
-    SmallSet& s = *ALLOCA_SMALLSET(maxElts);
-    s.add(0);
-    s.add(1);
-    s.add(63);
-    s.add(137);
-    s.add(3141);
-    s.add(4095);
+    SmallSet& s = *ALLOCA_SMALLSET(SmallSet::MAX_N);
     SECTION("contains") {
+	s.add(0);
+	s.add(1);
+	s.add(63);
+	s.add(137);
+	s.add(3141);
+	s.add(4095);
 	CHECK(s.contains(0));
 	CHECK(s.contains(1));
 	CHECK(s.contains(63));
