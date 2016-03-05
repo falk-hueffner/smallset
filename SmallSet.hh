@@ -24,34 +24,36 @@ class SmallSet {
 private:
     typedef std::uint64_t word;
     static constexpr size_t WORD_BITS = std::numeric_limits<word>::digits;
+    static constexpr size_t MAX_WORDS = WORD_BITS;
 public:
     static constexpr size_t MAX_N = WORD_BITS * WORD_BITS;
     static constexpr size_t MAX_X = MAX_N - 1;
 
-    static size_t allocSize(size_t n) { return sizeof (word) * (1 + n); }
+    static size_t allocSize(size_t n) { return sizeof (word) * (1 + std::min(n, MAX_WORDS)); }
     SmallSet() : mask_(0) { }
 
     void add(unsigned x) {
 	if (x > MAX_X)
 	    throw std::out_of_range("SmallSet::add: " + std::to_string(x) + " > " + std::to_string(MAX_X));
-	size_t xSet = x / WORD_BITS;
-	if (!bitSet(mask_, xSet)) {
-	    memmove(sets_ + xSet + 1, sets_ + xSet, sizeof (word) * numBitsAbove(mask_, xSet));
-	    sets_[xSet] = word(1) << (x % WORD_BITS);
-	    mask_ |= word(1) << xSet;
+	size_t xSetNum = x / WORD_BITS;
+	word* xSet = sets_ + numBitsBelow(mask_, xSetNum);
+	if (!isBitSet(mask_, xSetNum)) {
+	    memmove(xSet + 1, xSet, sizeof (word) * numBitsAbove(mask_, xSetNum));
+	    *xSet = bitMask(x % WORD_BITS);
+	    mask_ |= bitMask(xSetNum);
 	} else {
-	    sets_[xSet] |= word(1) << (x % WORD_BITS);
+	    *xSet |= bitMask(x % WORD_BITS);
 	}
     }
 
     bool contains(unsigned x) const {
 	if (x > MAX_X)
 	    throw std::out_of_range("SmallSet::contains: " + std::to_string(x) + " > " + std::to_string(MAX_X));
-	size_t xSet = x / WORD_BITS;
-	if (!bitSet(mask_, xSet))
+	size_t xSetNum = x / WORD_BITS;
+	if (!isBitSet(mask_, xSetNum))
 	    return false;
 	else
-	    return bitSet(sets_[xSet], x % WORD_BITS);
+	    return isBitSet(sets_[numBitsBelow(mask_, xSetNum)], x % WORD_BITS);
     }
 
 private:
@@ -67,7 +69,9 @@ private:
 	else
 	    return __builtin_popcountll(x);
     }
-    static bool bitSet(word w, unsigned i) { return w & (word(1) << i); }
+    static word bitMask(unsigned i) { return  word(1) << i; }
+    static bool isBitSet(word w, unsigned i) { return w & bitMask(i); }
+    static size_t numBitsBelow(word x, size_t i) { return popcount(x & (bitMask(i) - 1)); }
     static size_t numBitsAbove(word w, unsigned i) { w >>= i; w >>= 1; return popcount(w); }
     word mask_;
     word sets_[];
